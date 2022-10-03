@@ -122,6 +122,9 @@ public class AppServer extends Thread {
     @Override
     public void run() {
         try {
+            log("Server " + idDelegado + " en linea para envio del archivo " + fileEnviar.getName() + " al cliente "
+                    + socketCliente.getInetAddress().getHostAddress() + ":" + socketCliente.getPort());
+            log("Tamaño del archivo: " + fileEnviar.length() + " bytes");
             MessageDigest md5Digest = MessageDigest.getInstance("MD5");
             String checksum = getFileChecksum(md5Digest, fileEnviar);
             // System.out.println("Checksum del archivo: " + checksum);
@@ -182,7 +185,7 @@ public class AppServer extends Thread {
                 FileInputStream fileInputStream = new FileInputStream(fileEnviar);
                 DataOutputStream dataOutputStream = new DataOutputStream(socketCliente.getOutputStream());
 
-                log("Server: " + idDelegado + " - Esperando a los demas clientes");
+                log("Server: " + idDelegado + "/" + nClientes + " - Esperando a los demas clientes");
                 barrera.await();
 
                 msg = "Enviando archivo...";
@@ -205,6 +208,7 @@ public class AppServer extends Thread {
                     msg = "Error en el id del cliente";
                     log("Server: " + idDelegado + " - " + msg);
                     socketCliente.close();
+                    fileInputStream.close();
                     return;
                 }
                 // Enviar hash
@@ -221,6 +225,7 @@ public class AppServer extends Thread {
                     msg = "Error en el id del cliente";
                     log("Server: " + idDelegado + " - " + msg);
                     socketCliente.close();
+                    fileInputStream.close();
                     return;
                 }
                 if (msg.contains("incorrecto")) {
@@ -242,6 +247,8 @@ public class AppServer extends Thread {
             in.close();
             out.close();
             socketCliente.close();
+
+            log("Tasa de envio: " + (fileEnviar.length() / ((end - start)/1000)) + " bytes/s");
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,0 +1,5 @@
+Mon Oct 03 03:33:04 COT 2022 - Cliente 1 intentando conectarse al servidor
+Mon Oct 03 03:33:05 COT 2022 - Cliente 1 establecio conexion con el servidor
+Mon Oct 03 03:33:05 COT 2022 - Cliente 1 solicita tamanio del archivo
+Mon Oct 03 03:33:05 COT 2022 - Cliente 1 recibio tamanio archivo 104857600
+Mon Oct 03 03:33:05 COT 2022 - Cliente 1 listo para recibir archivo
