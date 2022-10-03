@@ -1,10 +1,11 @@
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.MessageDigest;
@@ -15,9 +16,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AppServer extends Thread {
-    private static final int PORT = 8080;
-    private static String BigFile = "data\250MiB.bin";
-    private static String SmallFile = "data\100MiB.bin";
+    private static int PORT = 5555;
+    private static String BigFile = "data\\250MiB.bin";
+    private static String SmallFile = "data\\100MiB.bin";
     // Tamanio 0 = 100MiB y 1 = 250MiB
     private static int TamanioArchivo = 0;
     private static File logFile;
@@ -28,13 +29,13 @@ public class AppServer extends Thread {
         // Get current time for logFile name <año-mes-dia-hora-minuto-segundo-log.txt>
         Date now = new Date();
         String logFileName = String.format("%tY-%tm-%td-%tH-%tM-%tS-log.txt", now, now, now, now, now, now);
-        logFile = new File(logFileName);
+        logFile = new File("logs\\" + logFileName);
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Ingrese el tamaño del archivo a enviar: 0 = 100MiB y 1 = 250MiB");
         TamanioArchivo = scanner.nextInt();
         System.out.println("Ingrese el puerto a utilizar: ");
-        int PORT = scanner.nextInt();
+        PORT = scanner.nextInt();
         System.out.println("Ingrese la cantidad de clientes a atender: ");
         nClientes = scanner.nextInt();
 
@@ -123,22 +124,22 @@ public class AppServer extends Thread {
             String checksum = getFileChecksum(md5Digest, fileEnviar);
             // System.out.println("Checksum del archivo: " + checksum);
 
-            InputStream in = socketCliente.getInputStream();
-            OutputStream out = socketCliente.getOutputStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
+            PrintWriter out = new PrintWriter(socketCliente.getOutputStream(), true);
 
             // Recibir petición de envio de archivo
-            String msg = in.read() + "";
-            log("Server: " + idDelegado + " - Mensaje recibido" + msg);
+            String msg = in.readLine() + "";
+            log("Server: " + idDelegado + " - Mensaje recibido " + msg);
             String partes[] = msg.split(" ");
-            Integer idCliente = Integer.parseInt(partes[4]);
+            Integer idCliente = Integer.parseInt(partes[1]);
 
             msg = "Conexion establecida con cliente " + idCliente.toString();
             log("Server: " + idDelegado + " - " + msg);
-            out.write(msg.getBytes());
+            out.println(msg);
 
             // Recibir petición de tamanio de archivo
-            msg = in.read() + "";
-            log("Server: " + idDelegado + " - Mensaje recibido" + msg);
+            msg = in.readLine() + "";
+            log("Server: " + idDelegado + " - Mensaje recibido " + msg);
             partes = msg.split(" ");
             Boolean idCorrecto = partes[1].equals(idCliente.toString());
             if (!idCorrecto) {
@@ -150,11 +151,11 @@ public class AppServer extends Thread {
             long tamanioEnvio = fileEnviar.length();
             msg = "Tamanio del archivo a enviar: " + tamanioEnvio;
             log("Server: " + idDelegado + " - " + msg);
-            out.write(msg.getBytes());
+            out.println(msg);
 
             // Recibir confirmacion de listo para recibir
-            msg = in.read() + "";
-            log("Server: " + idDelegado + " - Mensaje recibido" + msg);
+            msg = in.readLine() + "";
+            log("Server: " + idDelegado + " - Mensaje recibido " + msg);
             partes = msg.split(" ");
             idCorrecto = partes[1].equals(idCliente.toString());
             if (!idCorrecto) {
@@ -177,7 +178,7 @@ public class AppServer extends Thread {
             while (!enviado) {
                 // Create Streams to send the file
                 FileInputStream fileInputStream = new FileInputStream(fileEnviar);
-                DataOutputStream dataOutputStream = new DataOutputStream(out);
+                DataOutputStream dataOutputStream = new DataOutputStream(socketCliente.getOutputStream());
 
                 log("Server: " + idDelegado + " - Esperando a los demas clientes");
                 barrera.await();
@@ -189,15 +190,13 @@ public class AppServer extends Thread {
                 while ((len = fileInputStream.read(buffer)) > 0) {
                     dataOutputStream.write(buffer, 0, len);
                 }
-                fileInputStream.close();
-                dataOutputStream.close();
 
-                msg = "Archivo enviado, esperando checksum";
+                msg = "Archivo enviado, esperando solicitud de hash";
                 log("Server: " + idDelegado + " - " + msg + " del cliente " + idCliente);
 
                 // Recibir solicitud de hash
-                msg = in.read() + "";
-                log("Server: " + idDelegado + " - Mensaje recibido" + msg);
+                msg = in.readLine();
+                log("Server: " + idDelegado + " - Mensaje recibido " + msg);
                 partes = msg.split(" ");
                 idCorrecto = partes[1].equals(idCliente.toString());
                 if (!idCorrecto) {
@@ -209,11 +208,11 @@ public class AppServer extends Thread {
                 // Enviar hash
                 msg = "Enviando checksum";
                 log("Server: " + idDelegado + " - " + msg + " a cliente " + idCliente);
-                out.write(checksum.getBytes());
+                out.println(checksum);
 
                 // Recibir confirmacion de hash
-                msg = in.read() + "";
-                log("Server: " + idDelegado + " - Mensaje recibido" + msg);
+                msg = in.readLine() + "";
+                log("Server: " + idDelegado + " - Mensaje recibido " + msg);
                 partes = msg.split(" ");
                 idCorrecto = partes[1].equals(idCliente.toString());
                 if (!idCorrecto) {
@@ -229,14 +228,17 @@ public class AppServer extends Thread {
                 } else {
                     enviado = true;
                 }
+                fileInputStream.close();
             }
             long end = System.currentTimeMillis();
             log("Server: " + idDelegado + " - Tiempo de envio: " + (end - start) + " ms");
-            
+
             // Terminar conexion
             msg = "Terminando conexion";
             log("Server: " + idDelegado + " - " + msg + " con cliente " + idCliente);
-            out.write(msg.getBytes());
+            out.println(msg);
+            in.close();
+            out.close();
             socketCliente.close();
 
         } catch (Exception e) {

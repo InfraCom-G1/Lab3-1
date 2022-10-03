@@ -1,0 +1,8 @@
+Mon Oct 03 01:03:28 COT 2022 - Server: 0 - Mensaje recibido Cliente 0 intentando conectarse al servidor
+Mon Oct 03 01:03:28 COT 2022 - Server: 0 - Conexion establecida con cliente 0
+Mon Oct 03 01:03:28 COT 2022 - Server: 0 - Mensaje recibido Cliente 0 solicita tamanio del archivo
+Mon Oct 03 01:03:28 COT 2022 - Server: 0 - Tamanio del archivo a enviar: 104857600
+Mon Oct 03 01:03:28 COT 2022 - Server: 0 - Mensaje recibido Cliente 0 listo para recibir archivo
+Mon Oct 03 01:03:28 COT 2022 - Server: 0 - Esperando a los demas clientes
+Mon Oct 03 01:03:28 COT 2022 - Server: 0 - Enviando archivo...
+Mon Oct 03 01:03:35 COT 2022 - Server: 0 - Archivo enviado, esperando solicitud de hash del cliente 0

@@ -73,16 +73,18 @@ public class Cliente extends Thread {
                 String peticionArchivo = "Cliente " + id + " solicita tamanio del archivo";
                 System.out.println(peticionArchivo);
                 escritorS.println(peticionArchivo);
-                long size = clientData.readLong();
-                System.out.println("Cliente " + id + " recibio tamanio archivo" + size);
+                long size = Long.valueOf(lectorS.readLine().split(" ")[5]);
+                System.out.println("Cliente " + id + " recibio tamanio archivo " + size);
                 String clienteListo = "Cliente " + id + " listo para recibir archivo";
                 System.out.println(clienteListo);
                 escritorS.println(clienteListo);
                 Boolean archivoRecepcion = false;
 
                 while (archivoRecepcion == false){
-                    String fileName = "AppCliente/src/ArchivosRecibidos"+id+"-Prueba-"+totalConexiones+".txt" ;
-                    OutputStream output = new FileOutputStream(fileName);
+                    String fileName = "ArchivosRecibidos\\"+id+"-Prueba-"+totalConexiones+".bin" ;
+                    File file = new File(fileName);
+                    file.createNewFile();
+                    OutputStream output = new FileOutputStream(file);
                     byte[] buffer = new byte[1024];
                     while (size > 0 && (bytesRead = clientData.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1)
                     {
@@ -93,13 +95,14 @@ public class Cliente extends Thread {
                     System.out.println(archivoRecibido);
                     escritorS.println(archivoRecibido);
                     String hash = lectorS.readLine();
-                    File file = new File(fileName);
-                    MessageDigest shaDigest = MessageDigest.getInstance("SHA-256");
-                    String shaChecksum = getFileChecksum(shaDigest, file);
+                    System.out.println("Cliente " + id + " recibio hash " + hash);
+                    file = new File(fileName);
+                    MessageDigest md5Digest = MessageDigest.getInstance("MD5");
+                    String shaChecksum = getFileChecksum(md5Digest, file);
                     if (hash.equals(shaChecksum)){
                         archivoRecepcion = true;
                     }else{
-                        String archivoInCorrecto = "Cliente " + id + " recibo archivo incorrecto";
+                        String archivoInCorrecto = "Cliente " + id + " recibio archivo incorrecto";
                         System.out.println(archivoInCorrecto);
                         escritorS.println(archivoInCorrecto);
                     }
@@ -119,6 +122,7 @@ public class Cliente extends Thread {
             socket.close();
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();;
         }
     }
 
