@@ -126,6 +126,7 @@ public class AppServer extends Thread {
             InputStream in = socketCliente.getInputStream();
             OutputStream out = socketCliente.getOutputStream();
 
+            // Recibir petición de envio de archivo
             String msg = in.read() + "";
             log("Server: " + idDelegado + " - Mensaje recibido" + msg);
             String partes[] = msg.split(" ");
@@ -135,6 +136,7 @@ public class AppServer extends Thread {
             log("Server: " + idDelegado + " - " + msg);
             out.write(msg.getBytes());
 
+            // Recibir petición de tamanio de archivo
             msg = in.read() + "";
             log("Server: " + idDelegado + " - Mensaje recibido" + msg);
             partes = msg.split(" ");
@@ -150,6 +152,7 @@ public class AppServer extends Thread {
             log("Server: " + idDelegado + " - " + msg);
             out.write(msg.getBytes());
 
+            // Recibir confirmacion de listo para recibir
             msg = in.read() + "";
             log("Server: " + idDelegado + " - Mensaje recibido" + msg);
             partes = msg.split(" ");
@@ -160,7 +163,6 @@ public class AppServer extends Thread {
                 socketCliente.close();
                 return;
             }
-
             if (!msg.contains("listo")) {
                 msg = "Error en el mensaje de listo";
                 log("Server: " + idDelegado + " - " + msg);
@@ -170,6 +172,7 @@ public class AppServer extends Thread {
 
             long start = System.currentTimeMillis();
 
+            // Enviar archivo
             Boolean enviado = false;
             while (!enviado) {
                 // Create Streams to send the file
@@ -179,7 +182,6 @@ public class AppServer extends Thread {
                 log("Server: " + idDelegado + " - Esperando a los demas clientes");
                 barrera.await();
 
-                // Send the file
                 msg = "Enviando archivo...";
                 log("Server: " + idDelegado + " - " + msg);
                 byte[] buffer = new byte[1024];
@@ -193,6 +195,7 @@ public class AppServer extends Thread {
                 msg = "Archivo enviado, esperando checksum";
                 log("Server: " + idDelegado + " - " + msg + " del cliente " + idCliente);
 
+                // Recibir solicitud de hash
                 msg = in.read() + "";
                 log("Server: " + idDelegado + " - Mensaje recibido" + msg);
                 partes = msg.split(" ");
@@ -203,11 +206,12 @@ public class AppServer extends Thread {
                     socketCliente.close();
                     return;
                 }
-                // Send hash
+                // Enviar hash
                 msg = "Enviando checksum";
                 log("Server: " + idDelegado + " - " + msg + " a cliente " + idCliente);
                 out.write(checksum.getBytes());
 
+                // Recibir confirmacion de hash
                 msg = in.read() + "";
                 log("Server: " + idDelegado + " - Mensaje recibido" + msg);
                 partes = msg.split(" ");
@@ -228,7 +232,12 @@ public class AppServer extends Thread {
             }
             long end = System.currentTimeMillis();
             log("Server: " + idDelegado + " - Tiempo de envio: " + (end - start) + " ms");
+            
             // Terminar conexion
+            msg = "Terminando conexion";
+            log("Server: " + idDelegado + " - " + msg + " con cliente " + idCliente);
+            out.write(msg.getBytes());
+            socketCliente.close();
 
         } catch (Exception e) {
             e.printStackTrace();
