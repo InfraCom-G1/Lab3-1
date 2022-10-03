@@ -17,8 +17,8 @@ import java.util.concurrent.Executors;
 
 public class AppServer extends Thread {
     private static int PORT = 5555;
-    private static String BigFile = "data\\250MiB.bin";
-    private static String SmallFile = ".\\data\\100MiB.bin";
+    private static String BigFile = "../data/250MiB.bin";
+    private static String SmallFile = "../data/100MiB.bin";
     // Tamanio 0 = 100MiB y 1 = 250MiB
     private static int TamanioArchivo = 0;
     private static File logFile;
@@ -29,7 +29,7 @@ public class AppServer extends Thread {
         // Get current time for logFile name <año-mes-dia-hora-minuto-segundo-log.txt>
         Date now = new Date();
         String logFileName = String.format("%tY-%tm-%td-%tH-%tM-%tS-log.txt", now, now, now, now, now, now);
-        logFile = new File("logs/" + logFileName);
+        logFile = new File("../logs/" + logFileName);
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Ingrese el tamaño del archivo a enviar: 0 = 100MiB y 1 = 250MiB");
