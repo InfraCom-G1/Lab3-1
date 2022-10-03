@@ -17,8 +17,8 @@ import java.util.concurrent.Executors;
 
 public class AppServer extends Thread {
     private static int PORT = 5555;
-    private static String BigFile = "data/250MiB.bin";
-    private static String SmallFile = "data/100MiB.bin";
+    private static String BigFile = "./data/250MiB.bin";
+    private static String SmallFile = "./data/100MiB.bin";
     // Tamanio 0 = 100MiB y 1 = 250MiB
     private static int TamanioArchivo = 0;
     private static File logFile;
@@ -45,7 +45,7 @@ public class AppServer extends Thread {
         } else if (TamanioArchivo == 1) {
             file = new File(BigFile);
         } else {
-            file = new File("data/pexels-pixabay-206359.jpg");
+            file = new File("./data/pexels-pixabay-206359.jpg");
         }
 
         ServerSocket serverSocket = new ServerSocket(PORT);
@@ -245,6 +245,11 @@ public class AppServer extends Thread {
 
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                socketCliente.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 
