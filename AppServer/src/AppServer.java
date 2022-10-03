@@ -248,7 +248,7 @@ public class AppServer extends Thread {
             out.close();
             socketCliente.close();
 
-            log("Tasa de envio: " + (fileEnviar.length() / ((end - start)/1000)) + " bytes/s");
+            log("Tasa de envio: " + (fileEnviar.length() / 1024*((end - start)/1000)) + " KB/s");
 
         } catch (Exception e) {
             e.printStackTrace();
