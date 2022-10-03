@@ -18,7 +18,7 @@ public class Cliente extends Thread {
     private Integer totalConexiones;
     private File logFile;
     private final static Integer PORT = 5555;
-    private final static String HOST = "localhost";
+    private final static String HOST = "192.168.0.15";
 
     public Cliente(Integer id, Integer totalConexiones, File logFile) {
         this.id = id;
@@ -69,7 +69,7 @@ public class Cliente extends Thread {
             System.err.println("Error al escribir en el log");
         }
     }
-    
+
     public void run() {
         try {
             Socket socket = new Socket(HOST, PORT);
@@ -100,7 +100,7 @@ public class Cliente extends Thread {
                     file.createNewFile();
                     OutputStream output = new FileOutputStream(file);
                     byte[] buffer = new byte[1024];
-                    
+
                     while (size > 0 && (bytesRead = clientData.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1)
                     {
 
