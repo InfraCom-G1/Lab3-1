@@ -1,3 +1,4 @@
+import java.net.Socket;
 import java.util.Scanner;
 
 public class AppCliente {
@@ -9,10 +10,9 @@ public class AppCliente {
 
         Cliente clientes[] = new Cliente[n];
         for (int i = 0; i < n; i++) {
-            clientes[i] = new Cliente(i);
+            clientes[i] = new Cliente(i,n);
             clientes[i].start();
         }
-
         scanner.close();
     }
 }
