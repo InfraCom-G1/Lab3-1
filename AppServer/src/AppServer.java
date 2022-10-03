@@ -42,8 +42,10 @@ public class AppServer extends Thread {
         File file;
         if (TamanioArchivo == 0) {
             file = new File(SmallFile);
-        } else {
+        } else if (TamanioArchivo == 1) {
             file = new File(BigFile);
+        } else {
+            file = new File("data\\pexels-pixabay-206359.jpg");
         }
 
         ServerSocket serverSocket = new ServerSocket(PORT);
