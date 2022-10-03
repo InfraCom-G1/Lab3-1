@@ -73,7 +73,6 @@ public class Cliente extends Thread {
     public void run() {
         try {
             Socket socket = new Socket(HOST, PORT);
-            System.out.println("Iniciando conexion-----------------------------");
             PrintWriter escritorS = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader lectorS = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             InputStream in = socket.getInputStream();
