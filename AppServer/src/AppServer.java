@@ -17,8 +17,8 @@ import java.util.concurrent.Executors;
 
 public class AppServer extends Thread {
     private static int PORT = 5555;
-    private static String BigFile = "../data/250MiB.bin";
-    private static String SmallFile = "../data/100MiB.bin";
+    private static String BigFile = "../data/250MB.bin";
+    private static String SmallFile = "../data/100MB.bin";
     // Tamanio 0 = 100MiB y 1 = 250MiB
     private static int TamanioArchivo = 0;
     private static File logFile;
