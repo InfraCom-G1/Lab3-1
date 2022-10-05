@@ -18,7 +18,7 @@ public class Cliente extends Thread {
     private Integer totalConexiones;
     private File logFile;
     private final static Integer PORT = 5555;
-    private final static String HOST = "192.168.0.15";
+    private final static String HOST = "192.168.159.128";
 
     public Cliente(Integer id, Integer totalConexiones, File logFile) {
         this.id = id;
