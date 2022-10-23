@@ -1,3 +1,6 @@
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.util.Date;
@@ -19,6 +22,8 @@ public class Cliente extends Thread {
     private File logFile;
     private final static Integer PORT = 5555;
     private final static String HOST = "192.168.159.128";
+
+    byte[] buffer = new byte[1024];
 
     public Cliente(Integer id, Integer totalConexiones, File logFile) {
         this.id = id;
@@ -72,73 +77,81 @@ public class Cliente extends Thread {
 
     public void run() {
         try {
-            Socket socket = new Socket(HOST, PORT);
-            PrintWriter escritorS = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader lectorS = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            InputStream in = socket.getInputStream();
-            DataInputStream clientData = new DataInputStream(in);
+            //Socket socket = new Socket(HOST, PORT);
+            DatagramSocket socket = new DatagramSocket();
+            //PrintWriter escritorS = new PrintWriter(socket.getOutputStream(), true);
+            //BufferedReader lectorS = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            //InputStream in = socket.getInputStream();
+            //DataInputStream clientData = new DataInputStream(in);
+            InetAddress direccionServidor = InetAddress.getByName(HOST);
             int bytesRead;
             String mensajeInicio = "Cliente " + id + " intentando conectarse al servidor";
             log(mensajeInicio, logFile);
-            escritorS.println(mensajeInicio);
-            String conexionE = lectorS.readLine();
+            buffer = mensajeInicio.getBytes();
+ 
+            //Creo un datagrama
+            DatagramPacket pregunta = new DatagramPacket(buffer, buffer.length, direccionServidor, PORT);
+            socket.send(pregunta);
+            //escritorS.println(mensajeInicio);
+            DatagramPacket peticion = new DatagramPacket(buffer, buffer.length);
+ 
+            //Recibo la respuesta
+            socket.receive(peticion);
+            String conexionE = new String(peticion.getData());
             if (conexionE.equals("Conexion establecida con cliente " + id)) {
                 log("Cliente " + id + " establecio conexion con el servidor", logFile);
                 String peticionArchivo = "Cliente " + id + " solicita tamanio del archivo";
                 log(peticionArchivo, logFile);
-                escritorS.println(peticionArchivo);
-                long size = Long.valueOf(lectorS.readLine().split(" ")[5]);
+                buffer = peticionArchivo.getBytes();
+                DatagramPacket pa = new DatagramPacket(buffer, buffer.length, direccionServidor, PORT);
+                socket.send(pa);
+                //escritorS.println(peticionArchivo);
+                DatagramPacket rpa = new DatagramPacket(buffer, buffer.length);
+ 
+                //Recibo la respuesta
+                socket.receive(rpa);
+                String strTamanio=new String(rpa.getData());
+                long size = Long.valueOf(strTamanio.split(" ")[5]);
                 log("Cliente " + id + " recibio tamanio archivo " + size, logFile);
                 String clienteListo = "Cliente " + id + " listo para recibir archivo";
                 log(clienteListo, logFile);
-                escritorS.println(clienteListo);
+                buffer = clienteListo.getBytes();
+                DatagramPacket cListo = new DatagramPacket(buffer, buffer.length, direccionServidor, PORT);
+                socket.send(cListo);
+                //escritorS.println(clienteListo);
                 Boolean archivoRecepcion = false;
                 long start = System.currentTimeMillis();
                 while (archivoRecepcion == false){
                     String fileName = "ArchivosRecibidos\\"+id+"-Prueba-"+totalConexiones+".bin" ;
                     File file = new File(fileName);
                     file.createNewFile();
-                    OutputStream output = new FileOutputStream(file);
+                    FileOutputStream output = new FileOutputStream(file);
                     byte[] buffer = new byte[1024];
+                    int i=0;
 
-                    while (size > 0 && (bytesRead = clientData.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1)
-                    {
+                    DatagramPacket dp=new DatagramPacket(buffer,buffer.length);
+                    socket.receive(dp);
+                    String pac =new String(dp.getData(),0,dp.getLength());
+                    //System.out.println(pac);
+                    pac.getBytes();
+                    output.write(buffer);
+                    output.flush();
+                    output.close();
 
-                        output.write(buffer, 0, bytesRead);
-                        size -= bytesRead;
-                    }
                     String nombreArchivo = "Cliente " + id + " recibio archivo "+ fileName;
                     log(nombreArchivo, logFile);
-                    String archivoRecibido = "Cliente " + id + " solicita hash";
-                    log(archivoRecibido, logFile);
-                    escritorS.println(archivoRecibido);
-                    String hash = lectorS.readLine();
-                    log("Cliente " + id + " recibio hash " + hash, logFile);
-                    file = new File(fileName);
-                    MessageDigest md5Digest = MessageDigest.getInstance("MD5");
-                    String shaChecksum = getFileChecksum(md5Digest, file);
-                    if (hash.equals(shaChecksum)){
-                        archivoRecepcion = true;
-                    }else{
-                        String archivoInCorrecto = "Cliente " + id + " recibio archivo incorrecto";
-                        log(archivoInCorrecto, logFile);
-                        escritorS.println(archivoInCorrecto);
-                    }
-                    output.close();
                 }
                 long end = System.currentTimeMillis();
                 log("Cliente " + id + " - Tiempo de envio: " + ((end - start)/1000) + " s", logFile);
                 String archivoCorrecto = "Cliente " + id + " recibo archivo correcto";
                 log(archivoCorrecto, logFile);
-                escritorS.println(archivoCorrecto);
-                String conexionF = lectorS.readLine();
+                
+                DatagramPacket finalC = new DatagramPacket(buffer, buffer.length);
+                socket.receive(finalC);
+                String conexionF = new String(finalC.getData());
                 log(conexionF + " Cliente " + id, logFile);
                 //TO-DO log
             }
-            escritorS.close();
-            lectorS.close();
-            in.close();
-            clientData.close();
             socket.close();
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());

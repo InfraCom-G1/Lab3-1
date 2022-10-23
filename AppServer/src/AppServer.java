@@ -2,12 +2,17 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.Date;
 import java.util.Scanner;
@@ -48,18 +53,18 @@ public class AppServer extends Thread {
             file = new File("../data/pexels-pixabay-206359.jpg");
         }
 
-        ServerSocket serverSocket = new ServerSocket(PORT);
+        DatagramSocket socketUDP = new DatagramSocket(PORT);
 
         ExecutorService executor = Executors.newFixedThreadPool(nClientes);
         CyclicBarrier barrera = new CyclicBarrier(nClientes);
 
         for (int i = 0; i < nClientes; i++) {
-            Socket socketCliente = serverSocket.accept();
-            executor.execute(new AppServer(socketCliente, file, barrera, i));
+            
+            executor.execute(new AppServer(socketUDP, file, barrera, i));
         }
 
         executor.shutdown();
-        serverSocket.close();
+        socketUDP.close();
         scanner.close();
     }
 
@@ -105,19 +110,20 @@ public class AppServer extends Thread {
         return sb.toString();
     }
 
-    private Socket socketCliente;
+    private DatagramSocket socketCliente;
 
     private File fileEnviar;
     private CyclicBarrier barrera;
 
     private int idDelegado;
 
-    public AppServer(Socket socketCliente, File file, CyclicBarrier barrera, int id) {
-        this.socketCliente = socketCliente;
+    public AppServer(DatagramSocket socketUDP, File file, CyclicBarrier barrera, int id) {
+        this.socketCliente = socketUDP;
         this.fileEnviar = file;
         this.barrera = barrera;
         this.idDelegado = id;
     }
+
 
     @Override
     public void run() {
@@ -125,15 +131,56 @@ public class AppServer extends Thread {
             log("Server " + idDelegado + " en linea para envio del archivo " + fileEnviar.getName() + " al cliente "
                     + socketCliente.getInetAddress().getHostAddress() + ":" + socketCliente.getPort());
             log("Tamaño del archivo: " + fileEnviar.length() + " bytes");
-            MessageDigest md5Digest = MessageDigest.getInstance("MD5");
-            String checksum = getFileChecksum(md5Digest, fileEnviar);
+            //MessageDigest md5Digest = MessageDigest.getInstance("MD5");
+            //String checksum = getFileChecksum(md5Digest, fileEnviar);
+            byte[] buffer = new byte[1024];
+            DatagramPacket conexion = new DatagramPacket(buffer, buffer.length);
+                 
+                //Recibo el datagrama
+            socketCliente.receive(conexion);
+            String mensaje = new String(conexion.getData());
+            log("Server: " + idDelegado + " - Mensaje recibido " + mensaje);
+            String partes[] = mensaje.split(" ");
+            Integer idCliente = Integer.parseInt(partes[1]);
+            mensaje = "Conexion establecida con cliente " + idCliente.toString();
+            log("Server: " + idDelegado + " - " + mensaje);
+            int puertoCliente = conexion.getPort();
+            InetAddress direccion = conexion.getAddress();
+            buffer = mensaje.getBytes();
+ 
+                //creo el datagrama
+            DatagramPacket rConexion = new DatagramPacket(buffer, buffer.length, direccion, puertoCliente);
+            socketCliente.send(rConexion);
+            DatagramPacket pa = new DatagramPacket(buffer, buffer.length);
+            socketCliente.receive(pa);
+            mensaje = new String(pa.getData());
+            log("Server: " + idDelegado + " - Mensaje recibido " + mensaje);
+            partes = mensaje.split(" ");
+            Boolean idCorrecto = partes[1].equals(idCliente.toString());
+            if (!idCorrecto) {
+                mensaje = "Error en el id del cliente";
+                log("Server: " + idDelegado + " - " + mensaje);
+                socketCliente.close();
+                return;
+            }
+            long tamanioEnvio = fileEnviar.length();
+            mensaje = "Tamanio del archivo a enviar: " + tamanioEnvio;
+            log("Server: " + idDelegado + " - " + mensaje);
+            buffer = mensaje.getBytes();
+            DatagramPacket rpa = new DatagramPacket(buffer, buffer.length, direccion, puertoCliente);
+            socketCliente.send(rpa);
+
             // System.out.println("Checksum del archivo: " + checksum);
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
-            PrintWriter out = new PrintWriter(socketCliente.getOutputStream(), true);
+            /*BufferedReader in = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
+            PrintWriter out = new PrintWriter(socketCliente.getOutputStream(), true);*/
 
             // Recibir petición de envio de archivo
-            String msg = in.readLine() + "";
+            
+                 
+            //Recibo el datagrama
+            /*socketCliente.receive(peticion);
+            String msg = new String(peticion.getData());
             log("Server: " + idDelegado + " - Mensaje recibido " + msg);
             String partes[] = msg.split(" ");
             Integer idCliente = Integer.parseInt(partes[1]);
@@ -156,9 +203,9 @@ public class AppServer extends Thread {
             long tamanioEnvio = fileEnviar.length();
             msg = "Tamanio del archivo a enviar: " + tamanioEnvio;
             log("Server: " + idDelegado + " - " + msg);
-            out.println(msg);
+            out.println(msg);*/
 
-            // Recibir confirmacion de listo para recibir
+            /*// Recibir confirmacion de listo para recibir
             msg = in.readLine() + "";
             log("Server: " + idDelegado + " - Mensaje recibido " + msg);
             partes = msg.split(" ");
@@ -174,31 +221,48 @@ public class AppServer extends Thread {
                 log("Server: " + idDelegado + " - " + msg);
                 socketCliente.close();
                 return;
-            }
+            }*/
 
             long start = System.currentTimeMillis();
 
             // Enviar archivo
             Boolean enviado = false;
+            String msg;
+            
             while (!enviado) {
+                
                 // Create Streams to send the file
-                FileInputStream fileInputStream = new FileInputStream(fileEnviar);
-                DataOutputStream dataOutputStream = new DataOutputStream(socketCliente.getOutputStream());
-
+                //Preparo la respuesta
+                DatagramPacket peticion = new DatagramPacket(buffer, buffer.length);
+                 
+                //Recibo el datagrama
+                socketCliente.receive(peticion);
+                FileInputStream f = new FileInputStream(fileEnviar);
                 log("Server: " + idDelegado + "/" + nClientes + " - Esperando a los demas clientes");
                 barrera.await();
-
+                
                 msg = "Enviando archivo...";
                 log("Server: " + idDelegado + " - " + msg);
-                byte[] buffer = new byte[1024];
-                int len;
-                while ((len = fileInputStream.read(buffer)) > 0) {
-                    dataOutputStream.write(buffer, 0, len);
+                buffer = new byte[1024];
+                //int count;
+                int i=0;
+                while(f.read(buffer) != -1){
+
+                    buffer[i]=(byte)f.read();
+                    i++;
                 }
+                f.close();
+                DatagramPacket message = new DatagramPacket(buffer,i,direccion, puertoCliente);
+                socketCliente.send(message);
+                        
+    
+               /*  buffer=fileInputStream.
+                DatagramPacket respuesta = new DatagramPacket(buffer, buffer.length, direccion, puertoCliente);*/
 
-                msg = "Archivo enviado, esperando solicitud de hash";
-                log("Server: " + idDelegado + " - " + msg + " del cliente " + idCliente);
 
+                msg = "Archivo enviado";
+                log("Server: " + idDelegado + " - " + msg + " del cliente "+idCliente);
+                /* 
                 // Recibir solicitud de hash
                 msg = in.readLine();
                 log("Server: " + idDelegado + " - Mensaje recibido " + msg);
@@ -236,28 +300,27 @@ public class AppServer extends Thread {
                     enviado = true;
                 }
                 fileInputStream.close();
-            }
+            }*/
+        }
             long end = System.currentTimeMillis();
             log("Server: " + idDelegado + " - Tiempo de envio: " + (end - start) + " ms");
 
             // Terminar conexion
             msg = "Terminando conexion";
-            log("Server: " + idDelegado + " - " + msg + " con cliente " + idCliente);
-            out.println(msg);
-            in.close();
-            out.close();
+            log("Server: " + idDelegado + " - " + msg + " con cliente "+idCliente);
+            buffer = msg.getBytes();
+ 
+                //creo el datagrama
+            DatagramPacket respuesta = new DatagramPacket(buffer, buffer.length, direccion, puertoCliente);
+            socketCliente.send(respuesta);
             socketCliente.close();
 
             log("Tasa de envio: " + (fileEnviar.length() / (1024*((end - start)/1000))) + " KB/s");
 
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                socketCliente.close();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
         }
-    }
+    
 
+}
 }
