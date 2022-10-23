@@ -21,7 +21,7 @@ public class Cliente extends Thread {
     private Integer totalConexiones;
     private File logFile;
     private final static Integer PORT = 5555;
-    private final static String HOST = "192.168.20.32";
+    private final static String HOST = "192.168.159.128";
 
     byte[] buffer = new byte[1024];
 
