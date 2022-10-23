@@ -1,0 +1,55 @@
+Tue Oct 04 21:45:58 COT 2022 - Cliente 5 intentando conectarse al servidor
+Tue Oct 04 21:45:58 COT 2022 - Cliente 1 intentando conectarse al servidor
+Tue Oct 04 21:45:58 COT 2022 - Cliente 4 intentando conectarse al servidor
+Tue Oct 04 21:45:58 COT 2022 - Cliente 2 intentando conectarse al servidor
+Tue Oct 04 21:45:58 COT 2022 - Cliente 3 intentando conectarse al servidor
+Tue Oct 04 21:46:00 COT 2022 - Cliente 2 establecio conexion con el servidor
+Tue Oct 04 21:46:00 COT 2022 - Cliente 2 solicita tamanio del archivo
+Tue Oct 04 21:46:00 COT 2022 - Cliente 5 establecio conexion con el servidor
+Tue Oct 04 21:46:00 COT 2022 - Cliente 5 solicita tamanio del archivo
+Tue Oct 04 21:46:00 COT 2022 - Cliente 2 recibio tamanio archivo 100000000
+Tue Oct 04 21:46:00 COT 2022 - Cliente 2 listo para recibir archivo
+Tue Oct 04 21:46:00 COT 2022 - Cliente 5 recibio tamanio archivo 100000000
+Tue Oct 04 21:46:00 COT 2022 - Cliente 5 listo para recibir archivo
+Tue Oct 04 21:46:00 COT 2022 - Cliente 4 establecio conexion con el servidor
+Tue Oct 04 21:46:00 COT 2022 - Cliente 4 solicita tamanio del archivo
+Tue Oct 04 21:46:00 COT 2022 - Cliente 4 recibio tamanio archivo 100000000
+Tue Oct 04 21:46:00 COT 2022 - Cliente 4 listo para recibir archivo
+Tue Oct 04 21:46:00 COT 2022 - Cliente 3 establecio conexion con el servidor
+Tue Oct 04 21:46:00 COT 2022 - Cliente 3 solicita tamanio del archivo
+Tue Oct 04 21:46:00 COT 2022 - Cliente 3 recibio tamanio archivo 100000000
+Tue Oct 04 21:46:00 COT 2022 - Cliente 3 listo para recibir archivo
+Tue Oct 04 21:46:00 COT 2022 - Cliente 1 establecio conexion con el servidor
+Tue Oct 04 21:46:00 COT 2022 - Cliente 1 solicita tamanio del archivo
+Tue Oct 04 21:46:00 COT 2022 - Cliente 1 recibio tamanio archivo 100000000
+Tue Oct 04 21:46:00 COT 2022 - Cliente 1 listo para recibir archivo
+Tue Oct 04 21:46:29 COT 2022 - Cliente 4 recibio archivo ArchivosRecibidos\4-Prueba-5.bin
+Tue Oct 04 21:46:29 COT 2022 - Cliente 4 solicita hash
+Tue Oct 04 21:46:29 COT 2022 - Cliente 4 recibio hash f850c147465e376d759d7818aee7a5fb
+Tue Oct 04 21:46:29 COT 2022 - Cliente 4 - Tiempo de envio: 29 s
+Tue Oct 04 21:46:29 COT 2022 - Cliente 4 recibo archivo correcto
+Tue Oct 04 21:46:29 COT 2022 - Terminando conexion Cliente 4
+Tue Oct 04 21:46:31 COT 2022 - Cliente 3 recibio archivo ArchivosRecibidos\3-Prueba-5.bin
+Tue Oct 04 21:46:31 COT 2022 - Cliente 3 solicita hash
+Tue Oct 04 21:46:31 COT 2022 - Cliente 3 recibio hash f850c147465e376d759d7818aee7a5fb
+Tue Oct 04 21:46:32 COT 2022 - Cliente 2 recibio archivo ArchivosRecibidos\2-Prueba-5.bin
+Tue Oct 04 21:46:32 COT 2022 - Cliente 2 solicita hash
+Tue Oct 04 21:46:32 COT 2022 - Cliente 2 recibio hash f850c147465e376d759d7818aee7a5fb
+Tue Oct 04 21:46:32 COT 2022 - Cliente 3 - Tiempo de envio: 32 s
+Tue Oct 04 21:46:32 COT 2022 - Cliente 3 recibo archivo correcto
+Tue Oct 04 21:46:33 COT 2022 - Terminando conexion Cliente 3
+Tue Oct 04 21:46:33 COT 2022 - Cliente 1 recibio archivo ArchivosRecibidos\1-Prueba-5.bin
+Tue Oct 04 21:46:33 COT 2022 - Cliente 1 solicita hash
+Tue Oct 04 21:46:33 COT 2022 - Cliente 1 recibio hash f850c147465e376d759d7818aee7a5fb
+Tue Oct 04 21:46:33 COT 2022 - Cliente 2 - Tiempo de envio: 33 s
+Tue Oct 04 21:46:33 COT 2022 - Cliente 2 recibo archivo correcto
+Tue Oct 04 21:46:33 COT 2022 - Terminando conexion Cliente 2
+Tue Oct 04 21:46:34 COT 2022 - Cliente 5 recibio archivo ArchivosRecibidos\5-Prueba-5.bin
+Tue Oct 04 21:46:34 COT 2022 - Cliente 5 solicita hash
+Tue Oct 04 21:46:34 COT 2022 - Cliente 5 recibio hash f850c147465e376d759d7818aee7a5fb
+Tue Oct 04 21:46:34 COT 2022 - Cliente 1 - Tiempo de envio: 34 s
+Tue Oct 04 21:46:34 COT 2022 - Cliente 1 recibo archivo correcto
+Tue Oct 04 21:46:34 COT 2022 - Terminando conexion Cliente 1
+Tue Oct 04 21:46:35 COT 2022 - Cliente 5 - Tiempo de envio: 34 s
+Tue Oct 04 21:46:35 COT 2022 - Cliente 5 recibo archivo correcto
+Tue Oct 04 21:46:35 COT 2022 - Terminando conexion Cliente 5
